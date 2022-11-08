@@ -29,6 +29,12 @@
 - Deploy absurdamente simples
 - Baixa curva de aprendizado
 
+### Multithreading
+
+- Trabalhar com Multitrheading em GO é simples
+- o GO consome apenas 2kb por thread (ao contrario do padrão de 1mb)
+- o GO gerência suas próprias threads
+
 ## Projeto prático
 
 - Microsserviços de cálculo de taxas de produto
