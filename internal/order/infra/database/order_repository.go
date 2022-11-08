@@ -6,15 +6,15 @@ import (
 	"github.com/gustavohenriquess/golang-intensive/internal/order/entity"
 )
 
-type orderRepository struct {
+type OrderRepository struct {
 	Db *sql.DB
 }
 
-func NewOrderRepository(db *sql.DB) *orderRepository {
-	return &orderRepository{Db: db}
+func NewOrderRepository(db *sql.DB) *OrderRepository {
+	return &OrderRepository{Db: db}
 }
 
-func (r *orderRepository) Save(order *entity.Order) error {
+func (r *OrderRepository) Save(order *entity.Order) error {
 	stmt, err := r.Db.Prepare("INSERT INTO orders (id, price, tax, final_price) VALUES (?, ?, ?, ?)")
 	if err != nil {
 		return err
