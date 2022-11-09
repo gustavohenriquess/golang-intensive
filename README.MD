@@ -50,3 +50,19 @@
 - Prometheus
 - Grafana
 - Docker e Kubernets
+
+### Observações
+
+```
+# RabbitMQ
+Após subir o docker-compose lembre-se de logar no servidor do RabbitMQ (guest:guest) e:
+- Criar Queue: orders
+- Efetuar o bind com da Exchange com a Queue: amq.direct
+```
+
+```
+# Grafana
+Após logar no grafana (admin:admin) lembre-se de:
+- adicionar o Prometheus como Datasource (http://prometheus:9090)
+- Importar um Dashboard com o ID(10991) e adicionar o Prometheus a ele
+```
