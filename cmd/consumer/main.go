@@ -4,6 +4,7 @@ import (
 	"database/sql"
 	"encoding/json"
 	"fmt"
+	"net/http"
 	"time"
 
 	"github.com/gustavohenriquess/golang-intensive/internal/order/infra/database"
@@ -31,9 +32,32 @@ func main() {
 	defer ch.Close()
 
 	out := make(chan amqp.Delivery) //Channel to receive messages
-	go rabbitmq.Consume(ch, out)    //T2
+	// forever := make(chan bool)      //Channel to keep the program running
+	go rabbitmq.Consume(ch, out) //T2
 
-	for msg := range out {
+	qtdWorkers := 200
+
+	for i := 1; i <= qtdWorkers; i++ {
+		go worker(out, &uc, i)
+	}
+	// <-forever // Channel is never closed, so the program will never end
+
+	http.HandleFunc("/total", func(w http.ResponseWriter, r *http.Request) {
+		getTotalUC := usecase.GetTotalUseCase{OrderRepository: repository}
+		total, err := getTotalUC.Execute()
+		if err != nil {
+			w.WriteHeader(http.StatusInternalServerError)
+			w.Write([]byte(err.Error()))
+		}
+
+		json.NewEncoder(w).Encode(total)
+
+	})
+	http.ListenAndServe(":8080", nil)
+}
+
+func worker(deliveryMessage <-chan amqp.Delivery, uc *usecase.CalculateFinalPriceUseCase, workerID int) {
+	for msg := range deliveryMessage {
 		var inputDTO usecase.OrderInputDTO
 		err := json.Unmarshal(msg.Body, &inputDTO)
 		if err != nil {
@@ -46,7 +70,7 @@ func main() {
 		}
 		msg.Ack(false)
 
-		fmt.Println(outputDTO) //T1
-		time.Sleep(400 * time.Millisecond)
+		fmt.Printf("Worker %d has processed order %s\n", workerID, outputDTO.ID) //T1
+		time.Sleep(1 * time.Second)
 	}
 }
